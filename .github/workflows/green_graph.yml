@@ -1,0 +1,32 @@
+name: Keep Graph Green
+
+on:
+  schedule:
+    - cron: '0 0 * * *'   # Runs every day at 00:00 UTC
+  workflow_dispatch:        # Allows manual runs from the Actions tab
+
+jobs:
+  make-contribution:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # Required so the workflow can push commits
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}   # Uses the built-in token
+
+      - name: Modify File
+        run: |
+          echo "$(date -u)" > daily_update.txt
+          # Optional: keep a history of dates
+          # echo "$(date -u)" >> daily_update.txt
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "Areen3112"
+          git config --global user.email "avijoshi3112@gmail.com"
+          git add daily_update.txt
+          git diff --staged --quiet || git commit -m "Automated daily contribution $(date -u +%Y-%m-%d)"
+          git push
